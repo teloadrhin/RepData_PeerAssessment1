@@ -19,15 +19,15 @@ We save the data in the data frame "activity" and use "str" to show a brief summ
 
 
 ```r
-activity = read.csv(unz("activity.zip","activity.csv"),colClasses = c("numeric","factor","factor"))
+activity = read.csv(unz("activity.zip","activity.csv"))
 str(activity)
 ```
 
 ```
 ## 'data.frame':	17568 obs. of  3 variables:
-##  $ steps   : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
 ##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ interval: Factor w/ 288 levels "0","10","100",..: 1 226 2 73 136 195 198 209 212 223 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
 
@@ -57,13 +57,13 @@ myplot
 ![](figure/unnamed-chunk-3-1.png)<!-- -->
 
 ## What is the average daily activity pattern?
-Since we loaded the intervals of the day as factors it is straightforward to aggregate the average steps per interval.
+It is straightforward to aggregate the average steps per interval.
 
 ```r
-perInt <- aggregate(steps ~ interval, activity,FUN=mean,na.rm=TRUE)
-perInt$interval <- as.numeric(perInt$interval)
+perInt <- aggregate(steps ~ interval, activity,FUN=mean)
+perInt$interval <- as.numeric(as.character(perInt$interval))
 plot(perInt,type="l",col="red",xlab="Interval",ylab="Steps",lty=1,lwd=2,axes=FALSE)
-axis(side = 1, at = seq(0,290,10))
+axis(side = 1, at = seq(0,2360,10))
 axis(side = 2, at = seq(0,260,20))
 
 idx <- which(perInt$steps==max(perInt$steps))
@@ -73,7 +73,7 @@ abline(v=perInt$interval[idx],lty=2,lwd=2,col="blue")
 ![](figure/unnamed-chunk-4-1.png)<!-- -->
 
 
-The maximal number of steps is 206.1698113 and occurs in interval 272. 
+The maximal number of steps is 206.1698113 and occurs in interval 835. 
 
 
 ## Imputing missing values
