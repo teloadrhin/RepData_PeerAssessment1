@@ -397,7 +397,7 @@ myplot</code></pre>
 <div id="what-is-the-average-daily-activity-pattern" class="section level2">
 <h2>What is the average daily activity pattern?</h2>
 <p>It is straightforward to aggregate the average steps per interval.</p>
-<pre class="r"><code>perInt &lt;- aggregate(steps ~ interval, activity,FUN=mean)
+<pre class="r"><code>perInt &lt;- aggregate(steps ~ interval, activity,FUN=mean,na.rm = TRUE)
 perInt$interval &lt;- as.numeric(as.character(perInt$interval))
 plot(perInt,type=&quot;l&quot;,col=&quot;red&quot;,xlab=&quot;Interval&quot;,ylab=&quot;Steps&quot;,lty=1,lwd=2,axes=FALSE)
 axis(side = 1, at = seq(0,2360,10))

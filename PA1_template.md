@@ -60,7 +60,7 @@ myplot
 It is straightforward to aggregate the average steps per interval.
 
 ```r
-perInt <- aggregate(steps ~ interval, activity,FUN=mean)
+perInt <- aggregate(steps ~ interval, activity,FUN=mean,na.rm = TRUE)
 perInt$interval <- as.numeric(as.character(perInt$interval))
 plot(perInt,type="l",col="red",xlab="Interval",ylab="Steps",lty=1,lwd=2,axes=FALSE)
 axis(side = 1, at = seq(0,2360,10))
