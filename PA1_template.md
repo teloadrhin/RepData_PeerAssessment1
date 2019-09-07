@@ -5,7 +5,8 @@ output:
     keep_md: true
 ---
 
-```{r  global_options}
+
+```r
 # Make sure we use the correct figure folder
 knitr::opts_chunk$set(fig.path="figure/")
 ```
@@ -16,22 +17,32 @@ We can directly load the data from the zipped file.
 The file contains 3 columns: The steps, the day (as a date), and the interval of the day. 
 We save the data in the data frame "activity" and use "str" to show a brief summary. 
 
-```{r}
+
+```r
 activity = read.csv(unz("activity.zip","activity.csv"),colClasses = c("numeric","factor","factor"))
 str(activity)
-``` 
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : num  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: Factor w/ 288 levels "0","10","100",..: 1 226 2 73 136 195 198 209 212 223 ...
+```
 
 
 
 ## What is mean total number of steps taken per day?
 We use the R function "aggregate" to compute the total number of steps taken per day.
 (Missing data is simply ignored for now.) 
-```{r}
+
+```r
 perDay <- aggregate(steps ~ date , activity, FUN=sum,na.rm=TRUE)
 ```
 
-To get an overview of the data, we first plot a histogram of the total steps taken per day. We also add a solid green vertical line at the position of the mean (`r format(mean(perDay$steps),digits=7)` steps) and a blue dashed line at the position of the median (`r format(median(perDay$steps),digits=7)` steps). 
-```{r}
+To get an overview of the data, we first plot a histogram of the total steps taken per day. We also add a solid green vertical line at the position of the mean (10766.19 steps) and a blue dashed line at the position of the median (10765 steps). 
+
+```r
 library(ggplot2)
 myplot <- ggplot(data=perDay,aes(perDay$steps)) + 
           geom_histogram(bins=5,col="black",fill="red") +
@@ -43,9 +54,12 @@ myplot <- ggplot(data=perDay,aes(perDay$steps)) +
 myplot
 ```
 
+![](figure/unnamed-chunk-3-1.png)<!-- -->
+
 ## What is the average daily activity pattern?
 Since we loaded the intervals of the day as factors it is straightforward to aggregate the average steps per interval.
-```{r}
+
+```r
 perInt <- aggregate(steps ~ interval, activity,FUN=mean,na.rm=TRUE)
 perInt$interval <- as.numeric(perInt$interval)
 plot(perInt,type="l",col="red",xlab="Interval",ylab="Steps",lty=1,lwd=2,axes=FALSE)
@@ -54,30 +68,33 @@ axis(side = 2, at = seq(0,260,20))
 
 idx <- which(perInt$steps==max(perInt$steps))
 abline(v=perInt$interval[idx],lty=2,lwd=2,col="blue")
-
-
 ```
 
+![](figure/unnamed-chunk-4-1.png)<!-- -->
 
-The maximal number of steps is `r perInt$steps[idx]` and occurs in interval `r perInt$interval[idx]`. 
+
+The maximal number of steps is 206.1698113 and occurs in interval 272. 
 
 
 ## Imputing missing values
 Let us now take care of the missing values. First we calculate the number of missing entries. 
-```{r}
+
+```r
 numNA <- sum(is.na(activity$steps))
-``` 
-We find that `r numNA` entries are missing. Next we get the index of the missing values. One way to fix this is to simply insert the mean over the 5-minute intervals when data for an interval is missing. 
-```{r}
+```
+We find that 2304 entries are missing. Next we get the index of the missing values. One way to fix this is to simply insert the mean over the 5-minute intervals when data for an interval is missing. 
+
+```r
 # There are 61 days of data 
 ins <- rep(perInt$steps,61) 
 miss <- which(is.na(activity$steps))
 new_activity <- activity
 new_activity$steps[miss] <- ins[miss]
-``` 
+```
 Now we repeat our calculation of the average steps per day for the new data. 
 
-```{r}
+
+```r
 new_perDay <- aggregate(steps ~ date , new_activity, FUN=sum,na.rm=TRUE)
 
 new_myplot <- ggplot(data=new_perDay,aes(new_perDay$steps)) + 
@@ -90,12 +107,15 @@ new_myplot <- ggplot(data=new_perDay,aes(new_perDay$steps)) +
 new_myplot
 ```
 
+![](figure/unnamed-chunk-7-1.png)<!-- -->
+
 Comparing the result with the previous histogram, we find that the general distribution of the data is the same after imputing missing data.  
 
 ## Are there differences in activity patterns between weekdays and weekends?
 Finally, we want to check if there are differences between weekdays and weekends. To answer this question we first introduce an new column in our activity data set. (We will use the new data set, where the missing values have been imputed.) 
 
-```{r}
+
+```r
 dates <- as.Date(new_activity$date)
 tst <- (weekdays(dates,abbreviate = TRUE) %in% c("Sat","Sun"))
 wd <- rep("Weekday",length(dates))
@@ -113,6 +133,8 @@ xyplot(x~as.numeric(Interval) | Day,
        layout=c(1,2),
        xlab="Interval",
        ylab="Average Steps")
-``` 
+```
+
+![](figure/unnamed-chunk-8-1.png)<!-- -->
 
 
